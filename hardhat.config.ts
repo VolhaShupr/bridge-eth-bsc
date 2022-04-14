@@ -13,7 +13,7 @@ import "./tasks";
 
 dotenv.config();
 
-const { RINKEBY_API_URL, PRIVATE_KEY1, PRIVATE_KEY2, PRIVATE_KEY3, ETHERSCAN_API_KEY } = process.env;
+const { RINKEBY_API_URL, PRIVATE_KEY1, PRIVATE_KEY2, PRIVATE_KEY3, ETHERSCAN_API_KEY, BSCSCAN_API_KEY } = process.env;
 
 const config: HardhatUserConfig = {
   solidity: "0.8.4",
@@ -22,13 +22,22 @@ const config: HardhatUserConfig = {
       url: RINKEBY_API_URL,
       accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`],
     },
+    bscTestnet: {
+      url: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      chainId: 97,
+      gasPrice: 20000000000,
+      accounts: [`0x${PRIVATE_KEY1}`, `0x${PRIVATE_KEY2}`, `0x${PRIVATE_KEY3}`],
+    },
   },
   gasReporter: {
     enabled: true,
     currency: "USD",
   },
   etherscan: {
-    apiKey: ETHERSCAN_API_KEY,
+    apiKey: {
+      rinkeby: ETHERSCAN_API_KEY,
+      bscTestnet: BSCSCAN_API_KEY,
+    },
   },
   contractSizer: {
     alphaSort: true,
