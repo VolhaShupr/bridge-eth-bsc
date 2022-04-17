@@ -15,7 +15,6 @@ contract Bridge is Ownable {
 
     address private _validator;
     Token private _token;
-    uint private _chainIdFrom; // is redundant?
     uint private _chainIdTo;
 
     /// @dev messageHash => bool to avoid duplicate transfers
@@ -43,7 +42,6 @@ contract Bridge is Ownable {
     constructor(address validator, address token, uint chainIdTo) {
         _validator = validator;
         _token = Token(token);
-        _chainIdFrom = getChainId();
         _chainIdTo = chainIdTo;
     }
 
@@ -66,7 +64,7 @@ contract Bridge is Ownable {
         uint nonce = _nonce.current();
         _token.burn(msg.sender, amount);
 
-        emit SwapInitialized(msg.sender, to, amount, nonce, _chainIdFrom, _chainIdTo);
+        emit SwapInitialized(msg.sender, to, amount, nonce, block.chainid, _chainIdTo);
     }
 
     /**
@@ -121,15 +119,6 @@ contract Bridge is Ownable {
     function isSignValid(bytes32 messageHash, bytes memory signature) private view returns (bool) {
         address decodedValidator = messageHash.toEthSignedMessageHash().recover(signature);
         return decodedValidator == _validator;
-    }
-
-    /**
-    * @return chainId Deployed contract chain id
-    */
-    function getChainId() private view returns (uint256 chainId) {
-        assembly {
-            chainId := chainid()
-        }
     }
 
 }
