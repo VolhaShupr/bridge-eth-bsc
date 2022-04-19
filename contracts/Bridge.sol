@@ -38,6 +38,24 @@ contract Bridge is Ownable {
         uint chainIdTo
     );
 
+    /**
+    * @dev Emitted when user redeems tokens on destination chain
+    * @param from Address of the token swap initiator on the primary chain
+    * @param to Address of the token recipient on another chain
+    * @param amount Amount of transferred tokens
+    * @param nonce Number of operations in the bridge contract on the primary chain
+    * @param chainIdFrom Chain id of the token sender
+    * @param chainIdTo Chain id of the token recipient
+    */
+    event Redeemed (
+        address indexed from,
+        address indexed to,
+        uint amount,
+        uint nonce,
+        uint chainIdFrom,
+        uint chainIdTo
+    );
+
     /// @dev Initializes the contract by setting a `validator`, `token` and a `chainIdTo`
     constructor(address validator, address token, uint chainIdTo) {
         _validator = validator;
@@ -68,7 +86,7 @@ contract Bridge is Ownable {
     }
 
     /**
-    * @dev Mints tokens to msg.sender
+    * @dev Mints tokens to the recipient
     * @param from Address of the token swap initiator
     * @param to Address of the token recipient
     * @param amount Amount of tokens to mint
@@ -88,9 +106,9 @@ contract Bridge is Ownable {
         require(isSignValid(messageHash, signature), "Not valid data");
 
         _processedMessages[messageHash] = true;
-        _token.mint(msg.sender, amount);
+        _token.mint(to, amount);
 
-        // is event here needed?
+        emit Redeemed(from, to, amount, nonce, chainIdFrom, chainIdTo);
     }
 
     /**
