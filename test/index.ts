@@ -158,9 +158,11 @@ describe("Bridge ETH --> BSC", () => {
       ) as string;
       const signature = await web3.eth.sign(messageHash, validatorAddress);
 
-      await ethBridge.connect(ethAccount).redeem(
+      await expect(ethBridge.connect(ethAccount).redeem(
         bscAccountAddress, ethAccountAddress, newAmount, nonce, CHAIN_ID.hardhat, CHAIN_ID.rinkeby, signature,
-      );
+      ))
+        .to.emit(ethBridge, "Redeemed")
+        .withArgs(bscAccountAddress, ethAccountAddress, newAmount, nonce, CHAIN_ID.hardhat, CHAIN_ID.rinkeby);
 
       expect(await ethToken.balanceOf(ethAccountAddress)).to.equal(tokenInitialBalance.sub(transferAmount).add(newAmount));
       expect(await ethToken.totalSupply()).to.equal(tokenInitialBalance.mul(2).sub(transferAmount).add(newAmount));
